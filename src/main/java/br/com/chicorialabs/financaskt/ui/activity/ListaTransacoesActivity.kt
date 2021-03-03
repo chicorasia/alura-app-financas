@@ -30,9 +30,9 @@ class ListaTransacoesActivity : AppCompatActivity() {
         view: View,
         transacoes: List<Transacao>
     ) {
-        ResumoView(view, transacoes).adicionaReceita()
-        ResumoView(view, transacoes).adicionaDespesa()
-        ResumoView(view, transacoes).adicionaTotal()
+        ResumoView(view, transacoes, this).adicionaReceita()
+        ResumoView(view, transacoes, this).adicionaDespesa()
+        ResumoView(view, transacoes, this).adicionaTotal()
     }
 
 

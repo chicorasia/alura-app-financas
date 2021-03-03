@@ -9,5 +9,6 @@ fun BigDecimal.formataMoedaPadraoBrasileiro(): String {
     return DecimalFormat.getCurrencyInstance(Locale("pt", "br"))
         .format(this)
         .replace("R$", "R$ ")
+        .replace("-R$ ", "R$ -")
 
 }
