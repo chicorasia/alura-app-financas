@@ -1,10 +1,12 @@
 package br.com.chicorialabs.financaskt.ui.activity
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import br.com.chicorialabs.financaskt.R
 import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
+import br.com.chicorialabs.financaskt.ui.ResumoView
 import br.com.chicorialabs.financaskt.ui.adapter.ListaTransacoesAdapter
 import kotlinx.android.synthetic.main.activity_lista_transacoes.*
 import java.math.BigDecimal
@@ -17,10 +19,22 @@ class ListaTransacoesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_lista_transacoes)
 
         val transacoes: List<Transacao> = transacoesDeExemplo()
+        val view = window.decorView
 
+        configuraResumo(view, transacoes)
         configuraLista(transacoes)
 
     }
+
+    private fun configuraResumo(
+        view: View,
+        transacoes: List<Transacao>
+    ) {
+        ResumoView(view, transacoes).adicionaReceita()
+        ResumoView(view, transacoes).adicionaDespesa()
+        ResumoView(view, transacoes).adicionaTotal()
+    }
+
 
     private fun configuraLista(transacoes: List<Transacao>) {
         lista_transacoes_listview.adapter =
