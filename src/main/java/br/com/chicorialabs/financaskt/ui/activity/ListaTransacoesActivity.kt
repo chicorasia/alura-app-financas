@@ -1,7 +1,6 @@
 package br.com.chicorialabs.financaskt.ui.activity
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import br.com.chicorialabs.financaskt.R
 import br.com.chicorialabs.financaskt.model.Tipo
@@ -19,20 +18,17 @@ class ListaTransacoesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_lista_transacoes)
 
         val transacoes: List<Transacao> = transacoesDeExemplo()
-        val view = window.decorView
 
-        configuraResumo(view, transacoes)
+        configuraResumo(transacoes)
         configuraLista(transacoes)
 
     }
 
-    private fun configuraResumo(
-        view: View,
-        transacoes: List<Transacao>
-    ) {
-        ResumoView(view, transacoes, this).adicionaReceita()
-        ResumoView(view, transacoes, this).adicionaDespesa()
-        ResumoView(view, transacoes, this).adicionaTotal()
+    private fun configuraResumo(transacoes: List<Transacao>) {
+        val view = window.decorView
+        val resumoView = ResumoView(view, transacoes, this)
+
+        resumoView.atualiza()
     }
 
 
