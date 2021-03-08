@@ -47,7 +47,7 @@
             android:id="@+id/lista_transacoes_adiciona_receita"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_bottom_left_white_18dp"
+            android:src="@drawable/ic_arrow_top_right_white_18dp"
             fab:fab_colorNormal="@color/receita"
             fab:fab_colorPressed="#2945fc"
             fab:fab_colorRipple="#3216e2"

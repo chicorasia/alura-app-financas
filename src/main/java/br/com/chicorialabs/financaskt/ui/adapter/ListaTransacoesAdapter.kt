@@ -13,6 +13,7 @@ import br.com.chicorialabs.financaskt.model.Transacao
 import br.com.chicorialabs.financaskt.ui.formataDataPadraoBrasileiro
 import kotlinx.android.synthetic.main.transacao_item.view.*
 
+
 class ListaTransacoesAdapter(val transacoes: List<Transacao>,
                              val context: Context) : BaseAdapter() {
 
@@ -33,7 +34,7 @@ class ListaTransacoesAdapter(val transacoes: List<Transacao>,
         parent: ViewGroup?
     ): View {
         val viewCriada =  LayoutInflater.from(context).inflate(R.layout.transacao_item,
-            parent, false)
+            parent, false).rootView
 
         val transacao = transacoes[posicao]
 
@@ -50,6 +51,7 @@ class ListaTransacoesAdapter(val transacoes: List<Transacao>,
         viewCriada: View
     ) {
         transacao.tipo.let { tipo: Tipo ->
+
             viewCriada.transacao_icone.setBackgroundResource(tipo.icone)
         }
     }

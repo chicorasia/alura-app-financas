@@ -15,10 +15,10 @@ class ResumoView(
     transacoes: List<Transacao>,
     context: Context
 ) {
-
     private val resumo: Resumo = Resumo(transacoes)
     private val corReceita = ContextCompat.getColor(context, R.color.receita)
     private val corDespesa = ContextCompat.getColor(context, R.color.despesa)
+
 
     fun atualiza(){
         adicionaReceita()
