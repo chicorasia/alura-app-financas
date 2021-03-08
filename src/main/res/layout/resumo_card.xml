@@ -42,7 +42,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/resumo_card_receita"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
                 android:textSize="20dp"
                 tools:text="R$ 1000000,00" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/resumo_card_despesa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -64,7 +64,7 @@
                 android:layout_gravity="right"
                 android:background="#848484" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/resumo_card_total"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -1,17 +1,17 @@
 package br.com.chicorialabs.financaskt.ui
 
+//import kotlinx.android.synthetic.main.resumo_card.view.*
 import android.content.Context
-import android.view.View
 import androidx.core.content.ContextCompat
 import br.com.chicorialabs.financaskt.R
+import br.com.chicorialabs.financaskt.databinding.ActivityListaTransacoesBinding
 import br.com.chicorialabs.financaskt.extension.formataMoedaPadraoBrasileiro
 import br.com.chicorialabs.financaskt.model.Resumo
 import br.com.chicorialabs.financaskt.model.Transacao
-import kotlinx.android.synthetic.main.resumo_card.view.*
 import java.math.BigDecimal
 
 class ResumoView(
-    private val view: View,
+    private val binding: ActivityListaTransacoesBinding,
     transacoes: List<Transacao>,
     context: Context
 ) {
@@ -28,7 +28,7 @@ class ResumoView(
 
     private fun adicionaReceita() {
         val totalReceita = resumo.receita
-        with(view.resumo_card_receita) {
+        with(binding.listaTransacoesResumo.resumoCardReceita) {
             setTextColor(corReceita)
             text = totalReceita.formataMoedaPadraoBrasileiro()
         }
@@ -37,7 +37,7 @@ class ResumoView(
     private fun adicionaDespesa() {
 
         val totalDespesa = resumo.despesa
-        with(view.resumo_card_despesa){
+        with(binding.listaTransacoesResumo.resumoCardDespesa){
             setTextColor(corDespesa)
             text = totalDespesa.formataMoedaPadraoBrasileiro()
         }
@@ -46,9 +46,9 @@ class ResumoView(
     private fun adicionaTotal() {
 
         val total = resumo.total()
-        with(view.resumo_card_total) {
+        with(binding.listaTransacoesResumo.resumoCardTotal) {
             setTextColor(corPor(total))
-            resumo_card_total.text = total.formataMoedaPadraoBrasileiro()
+            text = total.formataMoedaPadraoBrasileiro()
         }
     }
 

@@ -48,8 +48,9 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
     private fun configuraResumo(transacoes: List<Transacao>) {
-        val view = window.decorView
-        val resumoView = ResumoView(view, transacoes, this)
+
+//        val view = window.decorView
+        val resumoView = ResumoView(binding, transacoes, this)
 
         resumoView.atualiza()
     }
@@ -78,6 +79,10 @@ class ListaTransacoesActivity : AppCompatActivity() {
         ),
         Transacao(
             valor = BigDecimal(10.0),
+            tipo = Tipo.RECEITA
+        ),
+        Transacao(
+            valor = BigDecimal(100.0),
             tipo = Tipo.RECEITA
         ),
     )
