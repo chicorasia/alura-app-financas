@@ -1,6 +1,5 @@
 package br.com.chicorialabs.financaskt.ui
 
-//import kotlinx.android.synthetic.main.resumo_card.view.*
 import android.content.Context
 import androidx.core.content.ContextCompat
 import br.com.chicorialabs.financaskt.R

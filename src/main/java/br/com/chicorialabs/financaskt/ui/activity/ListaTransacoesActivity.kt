@@ -1,7 +1,10 @@
 package br.com.chicorialabs.financaskt.ui.activity
 
 import android.app.AlertDialog
+import android.app.DatePickerDialog
+import android.content.DialogInterface
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import br.com.chicorialabs.financaskt.R
@@ -11,7 +14,9 @@ import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
 import br.com.chicorialabs.financaskt.ui.ResumoView
 import br.com.chicorialabs.financaskt.ui.adapter.ListaTransacoesAdapter
+import br.com.chicorialabs.financaskt.ui.formataDataPadraoBrasileiro
 import java.math.BigDecimal
+import java.util.*
 
 class ListaTransacoesActivity : AppCompatActivity() {
 
@@ -32,11 +37,35 @@ class ListaTransacoesActivity : AppCompatActivity() {
 
             var binding = FormTransacaoBinding.inflate(layoutInflater)
 
+            val hoje = Calendar.getInstance()
+            val ano = 2021
+            val mes = 2
+            val dia = 8
+
+            binding.formTransacaoData.setText(hoje.formataDataPadraoBrasileiro())
+            binding.formTransacaoData.setOnClickListener {
+                DatePickerDialog(this, {
+                                _, ano, mes, dia ->
+                            val dataSelecionada = Calendar.getInstance()
+                            dataSelecionada.set(ano, mes, dia)
+                            binding.formTransacaoData
+                                .setText(dataSelecionada.formataDataPadraoBrasileiro())
+                        }, ano, mes, dia)
+                    .show()
+            }
+
+            val spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.categorias_de_receita, android.R.layout.simple_spinner_dropdown_item)
+            binding.formTransacaoCategoria.adapter = spinnerAdapter
+
             AlertDialog.Builder(this)
                 .setTitle(R.string.adiciona_receita)
                 .setView(binding.root)
-                .setNegativeButton("cancelar", null)
-                .setPositiveButton("pronto", null)
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Adicionar", DialogInterface.OnClickListener {
+                        dialog, which ->
+                    Toast.makeText(this, "clicou!", Toast.LENGTH_SHORT).show()
+                })
                 .show()
         }
 
