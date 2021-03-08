@@ -5,13 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import br.com.chicorialabs.financaskt.R
+import br.com.chicorialabs.financaskt.databinding.TransacaoItemBinding
 import br.com.chicorialabs.financaskt.extension.formataMoedaPadraoBrasileiro
 import br.com.chicorialabs.financaskt.extension.limitaEmAte
 import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
 import br.com.chicorialabs.financaskt.ui.formataDataPadraoBrasileiro
-import kotlinx.android.synthetic.main.transacao_item.view.*
 
 
 class ListaTransacoesAdapter(val transacoes: List<Transacao>,
@@ -33,53 +32,56 @@ class ListaTransacoesAdapter(val transacoes: List<Transacao>,
         convertView: View?,
         parent: ViewGroup?
     ): View {
-        val viewCriada =  LayoutInflater.from(context).inflate(R.layout.transacao_item,
-            parent, false).rootView
+
+        var binding = TransacaoItemBinding.inflate(LayoutInflater.from(context))
+        val viewCriada = binding.root
+
+//        val viewCriada =  LayoutInflater.from(context).inflate(R.layout.transacao_item,
+//            parent, false).rootView
 
         val transacao = transacoes[posicao]
 
-        adicionaIcone(transacao, viewCriada)
-        adicionaValor(viewCriada, transacao)
-        adicionaCategoria(viewCriada, transacao)
-        adicionaData(viewCriada, transacao)
+        adicionaIcone(transacao, binding)
+        adicionaValor(binding, transacao)
+        adicionaCategoria(binding, transacao)
+        adicionaData(binding, transacao)
 
         return viewCriada
     }
 
     private fun adicionaIcone(
         transacao: Transacao,
-        viewCriada: View
+        binding: TransacaoItemBinding
     ) {
         transacao.tipo.let { tipo: Tipo ->
-
-            viewCriada.transacao_icone.setBackgroundResource(tipo.icone)
+            binding.transacaoIcone.setBackgroundResource(tipo.icone)
         }
     }
 
     private fun adicionaValor(
-        viewCriada: View,
+        binding: TransacaoItemBinding,
         transacao: Transacao
     ) {
-        viewCriada.transacao_valor.text =
+        binding.transacaoValor.text =
             transacao.valor.formataMoedaPadraoBrasileiro()
 
         transacao.tipo.let { tipo: Tipo ->
-            viewCriada.transacao_valor.setTextColor(context.getColor(tipo.cor))
+            binding.transacaoValor.setTextColor(context.getColor(tipo.cor))
         }
     }
 
     private fun adicionaData(
-        viewCriada: View,
+        binding: TransacaoItemBinding,
         transacao: Transacao
     ) {
-        viewCriada.transacao_data.text = transacao.data.formataDataPadraoBrasileiro()
+        binding.transacaoData.text = transacao.data.formataDataPadraoBrasileiro()
     }
 
     private fun adicionaCategoria(
-        viewCriada: View,
+        binding: TransacaoItemBinding,
         transacao: Transacao
     ) {
-        viewCriada.transacao_categoria.text = transacao.categoria.limitaEmAte(charMaximoCategoria)
+        binding.transacaoCategoria.text = transacao.categoria.limitaEmAte(charMaximoCategoria)
     }
 
 
