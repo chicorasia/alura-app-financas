@@ -16,6 +16,7 @@ import br.com.chicorialabs.financaskt.ui.ResumoView
 import br.com.chicorialabs.financaskt.ui.adapter.ListaTransacoesAdapter
 import br.com.chicorialabs.financaskt.ui.formataDataPadraoBrasileiro
 import java.math.BigDecimal
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ListaTransacoesActivity : AppCompatActivity() {
@@ -42,36 +43,58 @@ class ListaTransacoesActivity : AppCompatActivity() {
             val mes = 2
             val dia = 8
 
+            //não entendi muito bem esse pedaço:
             binding.formTransacaoData.setText(hoje.formataDataPadraoBrasileiro())
             binding.formTransacaoData.setOnClickListener {
-                DatePickerDialog(this, {
-                                _, ano, mes, dia ->
-                            val dataSelecionada = Calendar.getInstance()
-                            dataSelecionada.set(ano, mes, dia)
-                            binding.formTransacaoData
-                                .setText(dataSelecionada.formataDataPadraoBrasileiro())
-                        }, ano, mes, dia)
+                DatePickerDialog(this, { _, ano, mes, dia ->
+                    val dataSelecionada = Calendar.getInstance()
+                    dataSelecionada.set(ano, mes, dia)
+                    binding.formTransacaoData
+                        .setText(dataSelecionada.formataDataPadraoBrasileiro())
+                }, ano, mes, dia)
                     .show()
             }
 
-            val spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.categorias_de_receita, android.R.layout.simple_spinner_dropdown_item)
+            val spinnerAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.categorias_de_receita, android.R.layout.simple_spinner_dropdown_item
+            )
             binding.formTransacaoCategoria.adapter = spinnerAdapter
 
             AlertDialog.Builder(this)
                 .setTitle(R.string.adiciona_receita)
                 .setView(binding.root)
                 .setNegativeButton("Cancelar", null)
-                .setPositiveButton("Adicionar", DialogInterface.OnClickListener {
-                        dialog, which ->
-                    Toast.makeText(this, "clicou!", Toast.LENGTH_SHORT).show()
+                .setPositiveButton("Adicionar", DialogInterface.OnClickListener { dialog, which ->
+                    val valorEmTexto = binding.formTransacaoValor.text.toString()
+                    val categoria = binding.formTransacaoCategoria.selectedItem.toString()
+                    val dataEmTexto = binding.formTransacaoData.text.toString()
+
+                    val valor = BigDecimal(valorEmTexto)
+                    val dataConvertida: Date = SimpleDateFormat("dd/MM/yyyy").parse(dataEmTexto)
+                    val data = Calendar.getInstance()
+                    data.time = dataConvertida
+
+                    val transacaoCriada = Transacao(
+                        tipo = Tipo.RECEITA,
+                        valor = valor,
+                        categoria = categoria,
+                        data = data
+                    )
+
+                    Toast.makeText(this, "${transacaoCriada.valor} - " +
+                            "${transacaoCriada. data.formataDataPadraoBrasileiro()} - " +
+                            "${transacaoCriada.tipo} - " +
+                            "${transacaoCriada.categoria}", Toast.LENGTH_SHORT).show()
                 })
                 .show()
         }
 
         binding.listaTransacoesAdicionaDespesa.setOnClickListener {
-            Toast.makeText(this, "Clicou em add despesa",
-                Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this, "Clicou em add despesa",
+                Toast.LENGTH_LONG
+            ).show()
         }
 
     }
