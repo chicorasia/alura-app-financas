@@ -7,7 +7,6 @@ import android.content.DialogInterface
 import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import br.com.chicorialabs.financaskt.R
 import br.com.chicorialabs.financaskt.databinding.FormTransacaoBinding
 import br.com.chicorialabs.financaskt.delegate.TransacaoDelegate
 import br.com.chicorialabs.financaskt.extension.converteParaCalendar
@@ -21,23 +20,30 @@ class AdicionaTransacaoDialog(private val context: Context) {
 
     var dialogBinding = criaViewDialog(context)
 
-    fun configuraDialog(transacaoDelegate: TransacaoDelegate) {
+    private val campoCategoria = dialogBinding.formTransacaoCategoria
+    private val campoValor = dialogBinding.formTransacaoValor
+    private val campoData = dialogBinding.formTransacaoData
 
+    fun configuraDialog(
+        tipo: Tipo,
+        transacaoDelegate: TransacaoDelegate
+    ) {
 
         configuraCampoData()
-        configuraCampoCategoria()
-        configuraFormTransacao(transacaoDelegate)
+        configuraCampoCategoria(tipo)
+        configuraFormTransacao(tipo, transacaoDelegate)
     }
 
-    private fun configuraFormTransacao(transacaoDelegate: TransacaoDelegate) {
+
+    private fun configuraFormTransacao(tipo: Tipo, transacaoDelegate: TransacaoDelegate) {
         AlertDialog.Builder(context)
-            .setTitle(R.string.adiciona_receita)
+            .setTitle(tipo.titulo)
             .setView(dialogBinding.root)
             .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Adicionar", DialogInterface.OnClickListener { dialog, which ->
-                val valorEmTexto = dialogBinding.formTransacaoValor.text.toString()
-                val categoria = dialogBinding.formTransacaoCategoria.selectedItem.toString()
-                val dataEmTexto = dialogBinding.formTransacaoData.text.toString()
+            .setPositiveButton("Adicionar", DialogInterface.OnClickListener { _, _ ->
+                val valorEmTexto = campoValor.text.toString()
+                val categoria = campoCategoria.selectedItem.toString()
+                val dataEmTexto = campoData.text.toString()
 
                 val valor = converteValorEmBigDecimal(valorEmTexto)
 
@@ -45,7 +51,7 @@ class AdicionaTransacaoDialog(private val context: Context) {
                 data.time = dataEmTexto.converteParaCalendar()
 
                 val transacaoCriada = Transacao(
-                    tipo = Tipo.RECEITA,
+                    tipo = tipo,
                     valor = valor,
                     categoria = categoria,
                     data = data
@@ -58,23 +64,22 @@ class AdicionaTransacaoDialog(private val context: Context) {
     }
 
 
+    private fun converteValorEmBigDecimal(valorEmTexto: String): BigDecimal = try {
+        BigDecimal(valorEmTexto)
+    } catch (exception: NumberFormatException) {
+        Toast.makeText(
+            context, "Fomato de número inválido", Toast.LENGTH_LONG
+        ).show()
+        BigDecimal.ZERO
+    }
 
+    private fun configuraCampoCategoria(tipo: Tipo) {
 
-    private fun converteValorEmBigDecimal(valorEmTexto: String): BigDecimal =  try {
-            BigDecimal(valorEmTexto)
-        } catch (exception: NumberFormatException) {
-            Toast.makeText(
-                context, "Fomato de número inválido", Toast.LENGTH_LONG
-            ).show()
-            BigDecimal.ZERO
-        }
-
-    private fun configuraCampoCategoria() {
         val spinnerAdapter = ArrayAdapter.createFromResource(
             context,
-            R.array.categorias_de_receita, android.R.layout.simple_spinner_dropdown_item
+            tipo.categorias, android.R.layout.simple_spinner_dropdown_item
         )
-        dialogBinding.formTransacaoCategoria.adapter = spinnerAdapter
+        campoCategoria.adapter = spinnerAdapter
     }
 
     private fun configuraCampoData() {
@@ -83,13 +88,12 @@ class AdicionaTransacaoDialog(private val context: Context) {
         val mes = hoje.get(Calendar.MONTH)
         val dia = hoje.get(Calendar.DAY_OF_MONTH)
 
-        dialogBinding.formTransacaoData.setText(hoje.formataDataPadraoBrasileiro())
-        dialogBinding.formTransacaoData.setOnClickListener {
+        campoData.setText(hoje.formataDataPadraoBrasileiro())
+        campoData.setOnClickListener {
             DatePickerDialog(context, { _, ano, mes, dia ->
                 val dataSelecionada = Calendar.getInstance()
                 dataSelecionada.set(ano, mes, dia)
-                dialogBinding.formTransacaoData
-                    .setText(dataSelecionada.formataDataPadraoBrasileiro())
+                campoData.setText(dataSelecionada.formataDataPadraoBrasileiro())
             }, ano, mes, dia)
                 .show()
         }
