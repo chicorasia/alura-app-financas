@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -21,22 +22,29 @@ import java.util.*
 
 class ListaTransacoesActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityListaTransacoesBinding
+    private lateinit var mBinding: ActivityListaTransacoesBinding
+    val transacoes = mutableListOf<Transacao>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityListaTransacoesBinding.inflate(layoutInflater)
-        val view = binding.root
+        mBinding = ActivityListaTransacoesBinding.inflate(layoutInflater)
+        val view = mBinding.root
+        val floatingActionMenu = mBinding.listaTransacoesAdicionaMenu
+
         setContentView(view)
 
-        val transacoes: List<Transacao> = transacoesDeExemplo()
+        configuraResumo()
+        configuraLista()
+        Log.i("Fin_Binding", "onCreate: $mBinding")
 
-        configuraResumo(transacoes)
-        configuraLista(transacoes)
 
-        binding.listaTransacoesAdicionaReceita.setOnClickListener {
 
-            var binding = FormTransacaoBinding.inflate(layoutInflater)
+
+
+        mBinding.listaTransacoesAdicionaReceita.setOnClickListener {
+
+            var dialogBinding = FormTransacaoBinding.inflate(layoutInflater)
+            Log.i("Fin_Binding", "setOnClickListener: $dialogBinding")
 
             val hoje = Calendar.getInstance()
             val ano = 2021
@@ -44,12 +52,12 @@ class ListaTransacoesActivity : AppCompatActivity() {
             val dia = 8
 
             //não entendi muito bem esse pedaço:
-            binding.formTransacaoData.setText(hoje.formataDataPadraoBrasileiro())
-            binding.formTransacaoData.setOnClickListener {
+            dialogBinding.formTransacaoData.setText(hoje.formataDataPadraoBrasileiro())
+            dialogBinding.formTransacaoData.setOnClickListener {
                 DatePickerDialog(this, { _, ano, mes, dia ->
                     val dataSelecionada = Calendar.getInstance()
                     dataSelecionada.set(ano, mes, dia)
-                    binding.formTransacaoData
+                    dialogBinding.formTransacaoData
                         .setText(dataSelecionada.formataDataPadraoBrasileiro())
                 }, ano, mes, dia)
                     .show()
@@ -59,18 +67,26 @@ class ListaTransacoesActivity : AppCompatActivity() {
                 this,
                 R.array.categorias_de_receita, android.R.layout.simple_spinner_dropdown_item
             )
-            binding.formTransacaoCategoria.adapter = spinnerAdapter
+            dialogBinding.formTransacaoCategoria.adapter = spinnerAdapter
 
             AlertDialog.Builder(this)
                 .setTitle(R.string.adiciona_receita)
-                .setView(binding.root)
+                .setView(dialogBinding.root)
                 .setNegativeButton("Cancelar", null)
                 .setPositiveButton("Adicionar", DialogInterface.OnClickListener { dialog, which ->
-                    val valorEmTexto = binding.formTransacaoValor.text.toString()
-                    val categoria = binding.formTransacaoCategoria.selectedItem.toString()
-                    val dataEmTexto = binding.formTransacaoData.text.toString()
+                    val valorEmTexto = dialogBinding.formTransacaoValor.text.toString()
+                    val categoria = dialogBinding.formTransacaoCategoria.selectedItem.toString()
+                    val dataEmTexto = dialogBinding.formTransacaoData.text.toString()
 
-                    val valor = BigDecimal(valorEmTexto)
+                    val valor = try{
+                        BigDecimal(valorEmTexto)
+                    } catch (exception: NumberFormatException){
+                        Toast.makeText(this, "Fomato de número inválido"
+                            , Toast.LENGTH_LONG).show()
+                        BigDecimal.ZERO
+                    }
+
+
                     val dataConvertida: Date = SimpleDateFormat("dd/MM/yyyy").parse(dataEmTexto)
                     val data = Calendar.getInstance()
                     data.time = dataConvertida
@@ -82,15 +98,14 @@ class ListaTransacoesActivity : AppCompatActivity() {
                         data = data
                     )
 
-                    Toast.makeText(this, "${transacaoCriada.valor} - " +
-                            "${transacaoCriada. data.formataDataPadraoBrasileiro()} - " +
-                            "${transacaoCriada.tipo} - " +
-                            "${transacaoCriada.categoria}", Toast.LENGTH_SHORT).show()
+                    grava(transacaoCriada)
+                    floatingActionMenu.close(true)
+
                 })
                 .show()
         }
 
-        binding.listaTransacoesAdicionaDespesa.setOnClickListener {
+        mBinding.listaTransacoesAdicionaDespesa.setOnClickListener {
             Toast.makeText(
                 this, "Clicou em add despesa",
                 Toast.LENGTH_LONG
@@ -99,17 +114,23 @@ class ListaTransacoesActivity : AppCompatActivity() {
 
     }
 
-    private fun configuraResumo(transacoes: List<Transacao>) {
+    private fun grava(transacao: Transacao) {
+        transacoes.add(transacao)
+        configuraLista()
+        configuraResumo()
+    }
+
+    private fun configuraResumo() {
 
 //        val view = window.decorView
-        val resumoView = ResumoView(binding, transacoes, this)
+        val resumoView = ResumoView(mBinding, transacoes, this)
 
         resumoView.atualiza()
     }
 
 
-    private fun configuraLista(transacoes: List<Transacao>) {
-        binding.listaTransacoesListview.adapter =
+    private fun configuraLista() {
+        mBinding.listaTransacoesListview.adapter =
             ListaTransacoesAdapter(context = this, transacoes = transacoes)
     }
 
