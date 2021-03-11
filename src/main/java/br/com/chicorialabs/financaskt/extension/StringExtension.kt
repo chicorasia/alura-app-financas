@@ -1,5 +1,8 @@
 package br.com.chicorialabs.financaskt.extension
 
+import java.text.SimpleDateFormat
+import java.util.*
+
 fun String.limitaEmAte(caracteres: Int): String{
 
     if (this.length > caracteres) {
@@ -9,3 +12,6 @@ fun String.limitaEmAte(caracteres: Int): String{
     return this
 
 }
+
+fun String.converteParaCalendar(): Date =
+    SimpleDateFormat("dd/MM/yyyy").parse(this)

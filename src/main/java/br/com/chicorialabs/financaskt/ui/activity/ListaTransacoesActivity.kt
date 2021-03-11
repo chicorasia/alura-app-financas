@@ -1,24 +1,17 @@
 package br.com.chicorialabs.financaskt.ui.activity
 
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import br.com.chicorialabs.financaskt.R
 import br.com.chicorialabs.financaskt.databinding.ActivityListaTransacoesBinding
-import br.com.chicorialabs.financaskt.databinding.FormTransacaoBinding
+import br.com.chicorialabs.financaskt.delegate.TransacaoDelegate
 import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
 import br.com.chicorialabs.financaskt.ui.ResumoView
 import br.com.chicorialabs.financaskt.ui.adapter.ListaTransacoesAdapter
-import br.com.chicorialabs.financaskt.ui.formataDataPadraoBrasileiro
+import br.com.chicorialabs.financaskt.ui.dialog.AdicionaTransacaoDialog
 import java.math.BigDecimal
-import java.text.SimpleDateFormat
-import java.util.*
 
 class ListaTransacoesActivity : AppCompatActivity() {
 
@@ -32,77 +25,20 @@ class ListaTransacoesActivity : AppCompatActivity() {
         val floatingActionMenu = mBinding.listaTransacoesAdicionaMenu
 
         setContentView(view)
-
         configuraResumo()
         configuraLista()
         Log.i("Fin_Binding", "onCreate: $mBinding")
 
-
-
-
-
         mBinding.listaTransacoesAdicionaReceita.setOnClickListener {
 
-            var dialogBinding = FormTransacaoBinding.inflate(layoutInflater)
-            Log.i("Fin_Binding", "setOnClickListener: $dialogBinding")
-
-            val hoje = Calendar.getInstance()
-            val ano = 2021
-            val mes = 2
-            val dia = 8
-
-            //não entendi muito bem esse pedaço:
-            dialogBinding.formTransacaoData.setText(hoje.formataDataPadraoBrasileiro())
-            dialogBinding.formTransacaoData.setOnClickListener {
-                DatePickerDialog(this, { _, ano, mes, dia ->
-                    val dataSelecionada = Calendar.getInstance()
-                    dataSelecionada.set(ano, mes, dia)
-                    dialogBinding.formTransacaoData
-                        .setText(dataSelecionada.formataDataPadraoBrasileiro())
-                }, ano, mes, dia)
-                    .show()
-            }
-
-            val spinnerAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.categorias_de_receita, android.R.layout.simple_spinner_dropdown_item
-            )
-            dialogBinding.formTransacaoCategoria.adapter = spinnerAdapter
-
-            AlertDialog.Builder(this)
-                .setTitle(R.string.adiciona_receita)
-                .setView(dialogBinding.root)
-                .setNegativeButton("Cancelar", null)
-                .setPositiveButton("Adicionar", DialogInterface.OnClickListener { dialog, which ->
-                    val valorEmTexto = dialogBinding.formTransacaoValor.text.toString()
-                    val categoria = dialogBinding.formTransacaoCategoria.selectedItem.toString()
-                    val dataEmTexto = dialogBinding.formTransacaoData.text.toString()
-
-                    val valor = try{
-                        BigDecimal(valorEmTexto)
-                    } catch (exception: NumberFormatException){
-                        Toast.makeText(this, "Fomato de número inválido"
-                            , Toast.LENGTH_LONG).show()
-                        BigDecimal.ZERO
+            AdicionaTransacaoDialog(this).configuraDialog(
+                object : TransacaoDelegate {
+                    override fun delegate(transacao: Transacao) {
+                        grava(transacao)
+                        floatingActionMenu.close(true)
                     }
 
-
-                    val dataConvertida: Date = SimpleDateFormat("dd/MM/yyyy").parse(dataEmTexto)
-                    val data = Calendar.getInstance()
-                    data.time = dataConvertida
-
-                    val transacaoCriada = Transacao(
-                        tipo = Tipo.RECEITA,
-                        valor = valor,
-                        categoria = categoria,
-                        data = data
-                    )
-
-                    grava(transacaoCriada)
-                    floatingActionMenu.close(true)
-
                 })
-                .show()
         }
 
         mBinding.listaTransacoesAdicionaDespesa.setOnClickListener {
@@ -114,7 +50,8 @@ class ListaTransacoesActivity : AppCompatActivity() {
 
     }
 
-    private fun grava(transacao: Transacao) {
+
+    fun grava(transacao: Transacao) {
         transacoes.add(transacao)
         configuraLista()
         configuraResumo()
@@ -159,4 +96,7 @@ class ListaTransacoesActivity : AppCompatActivity() {
             tipo = Tipo.RECEITA
         ),
     )
+
 }
+
+
