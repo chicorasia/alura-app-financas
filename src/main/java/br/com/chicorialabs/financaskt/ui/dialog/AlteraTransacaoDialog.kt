@@ -16,7 +16,7 @@ import br.com.chicorialabs.financaskt.ui.formataDataPadraoBrasileiro
 import java.math.BigDecimal
 import java.util.*
 
-class AdicionaTransacaoDialog(private val context: Context) {
+class AlteraTransacaoDialog(private val context: Context) {
 
     var dialogBinding = criaViewDialog(context)
 
@@ -25,13 +25,20 @@ class AdicionaTransacaoDialog(private val context: Context) {
     private val campoData = dialogBinding.formTransacaoData
 
     fun chama(
-        tipo: Tipo,
+        transacao: Transacao,
         transacaoDelegate: TransacaoDelegate
     ) {
+        val tipo = transacao.tipo
 
         configuraCampoData()
         configuraCampoCategoria(tipo)
         configuraFormTransacao(tipo, transacaoDelegate)
+
+        campoValor.setText(transacao.valor.toString())
+        campoData.setText(transacao.data.formataDataPadraoBrasileiro())
+        val categoriasRecebidas = context.resources.getStringArray(tipo.categorias)
+        val posicaoCategoria = categoriasRecebidas.indexOf(transacao.categoria)
+        campoCategoria.setSelection(posicaoCategoria, true)
     }
 
 
@@ -40,7 +47,7 @@ class AdicionaTransacaoDialog(private val context: Context) {
             .setTitle(tipo.titulo)
             .setView(dialogBinding.root)
             .setNegativeButton("Cancelar", null)
-            .setPositiveButton("Adicionar", DialogInterface.OnClickListener { _, _ ->
+            .setPositiveButton("Alterar", DialogInterface.OnClickListener { _, _ ->
                 val valorEmTexto = campoValor.text.toString()
                 val categoria = campoCategoria.selectedItem.toString()
                 val dataEmTexto = campoData.text.toString()

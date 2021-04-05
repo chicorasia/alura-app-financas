@@ -9,6 +9,7 @@ import br.com.chicorialabs.financaskt.model.Transacao
 import br.com.chicorialabs.financaskt.ui.ResumoView
 import br.com.chicorialabs.financaskt.ui.adapter.ListaTransacoesAdapter
 import br.com.chicorialabs.financaskt.ui.dialog.AdicionaTransacaoDialog
+import br.com.chicorialabs.financaskt.ui.dialog.AlteraTransacaoDialog
 import com.github.clans.fab.FloatingActionMenu
 
 class ListaTransacoesActivity : AppCompatActivity() {
@@ -40,10 +41,11 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
     private fun chama(floatingActionMenu: FloatingActionMenu, tipo: Tipo) {
-        AdicionaTransacaoDialog(this).configuraDialog(tipo,
+        AdicionaTransacaoDialog(this).chama(tipo,
             object : TransacaoDelegate {
                 override fun delegate(transacao: Transacao) {
-                    grava(transacao)
+                    transacoes.add(transacao)
+                    atualizaTransacoes()
                     floatingActionMenu.close(true)
                 }
 
@@ -51,8 +53,7 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
 
-    fun grava(transacao: Transacao) {
-        transacoes.add(transacao)
+    fun atualizaTransacoes() {
         configuraLista()
         configuraResumo()
     }
@@ -67,6 +68,21 @@ class ListaTransacoesActivity : AppCompatActivity() {
     private fun configuraLista() {
         mBinding.listaTransacoesListview.adapter =
             ListaTransacoesAdapter(context = this, transacoes = transacoes)
+
+        mBinding.listaTransacoesListview.setOnItemClickListener { parent, view, position, id ->
+            val transacaoClicada = transacoes[position]
+
+            AlteraTransacaoDialog(this).chama(transacaoClicada,
+                object : TransacaoDelegate {
+                override fun delegate(transacao: Transacao) {
+                    transacoes[position] = transacao
+                    atualizaTransacoes()
+                }
+
+            })
+
+        }
+
     }
 
 }
