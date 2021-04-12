@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import br.com.chicorialabs.financaskt.databinding.FormTransacaoBinding
-import br.com.chicorialabs.financaskt.delegate.TransacaoDelegate
 import br.com.chicorialabs.financaskt.extension.converteParaCalendar
 import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
@@ -27,16 +26,16 @@ abstract class FormularioTransacaoDialog(private val context: Context) {
 
     open fun chama(
         tipo: Tipo,
-        transacaoDelegate: TransacaoDelegate
+        delegate: (transacao: Transacao) -> Unit
     ) {
 
         configuraCampoData()
         configuraCampoCategoria(tipo)
-        configuraFormulario(tipo, transacaoDelegate)
+        configuraFormulario(tipo, delegate)
     }
 
 
-    private fun configuraFormulario(tipo: Tipo, transacaoDelegate: TransacaoDelegate) {
+    private fun configuraFormulario(tipo: Tipo, delegate: (transacao: Transacao) -> Unit) {
         AlertDialog.Builder(context)
             .setTitle(tituloPor(tipo))
             .setView(dialogBinding.root)
@@ -58,7 +57,7 @@ abstract class FormularioTransacaoDialog(private val context: Context) {
                     data = data
                 )
 
-                transacaoDelegate.delegate(transacaoCriada)
+                delegate(transacaoCriada)
 
             })
             .show()

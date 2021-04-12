@@ -1,9 +1,12 @@
 package br.com.chicorialabs.financaskt.ui.activity
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
+import br.com.chicorialabs.financaskt.dao.TransacaoDao
 import br.com.chicorialabs.financaskt.databinding.ActivityListaTransacoesBinding
-import br.com.chicorialabs.financaskt.delegate.TransacaoDelegate
 import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
 import br.com.chicorialabs.financaskt.ui.ResumoView
@@ -17,13 +20,15 @@ class ListaTransacoesActivity : AppCompatActivity() {
     private val mBinding: ActivityListaTransacoesBinding by lazy {
         ActivityListaTransacoesBinding.inflate(layoutInflater)
     }
-    
-    private val transacoes = mutableListOf<Transacao>()
+
+    private val dao = TransacaoDao()
+    private val transacoes = dao.transacoes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val view = mBinding.root
         val floatingActionMenu = mBinding.listaTransacoesAdicionaMenu
+
 
         setContentView(view)
         configuraResumo()
@@ -43,17 +48,16 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
     private fun chamaDialogAdicionaTransacao(floatingActionMenu: FloatingActionMenu, tipo: Tipo) {
-        AdicionaTransacaoDialog(this).chama(tipo,
-            object : TransacaoDelegate {
-                override fun delegate(transacao: Transacao) {
-                    adiciona(transacao)
-                    floatingActionMenu.close(true)
-                }
-            })
+        AdicionaTransacaoDialog(this).chama(tipo)
+        { transacaoCriada ->
+            adiciona(transacaoCriada)
+            floatingActionMenu.close(true)
+        }
     }
 
+
     private fun adiciona(transacao: Transacao) {
-        transacoes.add(transacao)
+        dao.adiciona(transacao)
         atualizaTransacoes()
     }
 
@@ -79,28 +83,42 @@ class ListaTransacoesActivity : AppCompatActivity() {
                 val transacaoClicada = transacoes[position]
                 chamaDialogAlteraTransacao(transacaoClicada, position)
             }
+            setOnCreateContextMenuListener { menu, _, _ ->
+                menu.add(Menu.NONE, 1, Menu.NONE, "Remover")
+            }
         }
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+
+        val idDoMenu = item.itemId
+        if (idDoMenu == 1) {
+            val adapterMenuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
+            val posicaoDaTransacao = adapterMenuInfo.position
+            remove(posicaoDaTransacao)
+        }
+        return super.onContextItemSelected(item)
+    }
+
+    private fun remove(posicao: Int) {
+        dao.remove(posicao)
+        atualizaTransacoes()
     }
 
     private fun chamaDialogAlteraTransacao(
         transacaoClicada: Transacao,
         position: Int
     ) {
-        AlteraTransacaoDialog(this).chama(
-            transacaoClicada,
-            object : TransacaoDelegate {
-                override fun delegate(transacao: Transacao) {
-                    altera(transacao, position)
-                }
-
-            })
+        AlteraTransacaoDialog(this).chama(transacaoClicada) { transacaoAlterada ->
+            altera(transacaoAlterada, position)
+        }
     }
 
     private fun altera(
         transacao: Transacao,
         position: Int
     ) {
-        transacoes[position] = transacao
+        dao.altera(transacao, position)
         atualizaTransacoes()
     }
 

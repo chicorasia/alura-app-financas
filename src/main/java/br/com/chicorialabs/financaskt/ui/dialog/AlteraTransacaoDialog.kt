@@ -1,7 +1,6 @@
 package br.com.chicorialabs.financaskt.ui.dialog
 
 import android.content.Context
-import br.com.chicorialabs.financaskt.delegate.TransacaoDelegate
 import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
 import br.com.chicorialabs.financaskt.ui.formataDataPadraoBrasileiro
@@ -21,11 +20,11 @@ class AlteraTransacaoDialog(val context: Context) : FormularioTransacaoDialog(co
 
     fun chama(
         transacao: Transacao,
-        transacaoDelegate: TransacaoDelegate
+        delegate: (transacao: Transacao) -> Unit
     ) {
         val tipo = transacao.tipo
 
-        super.chama(tipo, transacaoDelegate)
+        super.chama(tipo, delegate)
 
         inicializaCampos(transacao, tipo)
     }
