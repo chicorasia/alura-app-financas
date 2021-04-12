@@ -14,12 +14,14 @@ import com.github.clans.fab.FloatingActionMenu
 
 class ListaTransacoesActivity : AppCompatActivity() {
 
-    private lateinit var mBinding: ActivityListaTransacoesBinding
-    val transacoes = mutableListOf<Transacao>()
+    private val mBinding: ActivityListaTransacoesBinding by lazy {
+        ActivityListaTransacoesBinding.inflate(layoutInflater)
+    }
+    
+    private val transacoes = mutableListOf<Transacao>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mBinding = ActivityListaTransacoesBinding.inflate(layoutInflater)
         val view = mBinding.root
         val floatingActionMenu = mBinding.listaTransacoesAdicionaMenu
 
@@ -32,24 +34,27 @@ class ListaTransacoesActivity : AppCompatActivity() {
 
     private fun configuraFab(floatingActionMenu: FloatingActionMenu) {
         mBinding.listaTransacoesAdicionaReceita.setOnClickListener {
-            chama(floatingActionMenu, Tipo.RECEITA)
+            chamaDialogAdicionaTransacao(floatingActionMenu, Tipo.RECEITA)
         }
 
         mBinding.listaTransacoesAdicionaDespesa.setOnClickListener {
-            chama(floatingActionMenu, Tipo.DESPESA)
+            chamaDialogAdicionaTransacao(floatingActionMenu, Tipo.DESPESA)
         }
     }
 
-    private fun chama(floatingActionMenu: FloatingActionMenu, tipo: Tipo) {
+    private fun chamaDialogAdicionaTransacao(floatingActionMenu: FloatingActionMenu, tipo: Tipo) {
         AdicionaTransacaoDialog(this).chama(tipo,
             object : TransacaoDelegate {
                 override fun delegate(transacao: Transacao) {
-                    transacoes.add(transacao)
-                    atualizaTransacoes()
+                    adiciona(transacao)
                     floatingActionMenu.close(true)
                 }
-
             })
+    }
+
+    private fun adiciona(transacao: Transacao) {
+        transacoes.add(transacao)
+        atualizaTransacoes()
     }
 
 
@@ -66,23 +71,37 @@ class ListaTransacoesActivity : AppCompatActivity() {
 
 
     private fun configuraLista() {
-        mBinding.listaTransacoesListview.adapter =
-            ListaTransacoesAdapter(context = this, transacoes = transacoes)
 
-        mBinding.listaTransacoesListview.setOnItemClickListener { parent, view, position, id ->
-            val transacaoClicada = transacoes[position]
+        val listaTransacoesAdapter = ListaTransacoesAdapter(context = this, transacoes = transacoes)
+        with(mBinding.listaTransacoesListview) {
+            adapter = listaTransacoesAdapter
+            setOnItemClickListener { _, _, position, _ ->
+                val transacaoClicada = transacoes[position]
+                chamaDialogAlteraTransacao(transacaoClicada, position)
+            }
+        }
+    }
 
-            AlteraTransacaoDialog(this).chama(transacaoClicada,
-                object : TransacaoDelegate {
+    private fun chamaDialogAlteraTransacao(
+        transacaoClicada: Transacao,
+        position: Int
+    ) {
+        AlteraTransacaoDialog(this).chama(
+            transacaoClicada,
+            object : TransacaoDelegate {
                 override fun delegate(transacao: Transacao) {
-                    transacoes[position] = transacao
-                    atualizaTransacoes()
+                    altera(transacao, position)
                 }
 
             })
+    }
 
-        }
-
+    private fun altera(
+        transacao: Transacao,
+        position: Int
+    ) {
+        transacoes[position] = transacao
+        atualizaTransacoes()
     }
 
 }
