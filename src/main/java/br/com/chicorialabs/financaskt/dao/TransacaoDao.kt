@@ -1,24 +1,29 @@
 package br.com.chicorialabs.financaskt.dao
 
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import br.com.chicorialabs.financaskt.model.Transacao
 
-class TransacaoDao {
+@Dao
+interface TransacaoDao {
 
-    val transacoes: List<Transacao> = Companion.transacoes
+    @Insert
+    suspend fun adiciona(transacao: Transacao)
 
-    companion object {
-        private val transacoes: MutableList<Transacao> = mutableListOf()
-    }
+    @Update
+    suspend fun altera(transacao: Transacao)
 
-    fun adiciona(transacao: Transacao) {
-        Companion.transacoes.add(transacao)
-    }
+    @Query("DELETE FROM table_transacoes WHERE transacaoId = :id")
+    suspend fun remove(id: Long)
 
-    fun remove(position: Int){
-        Companion.transacoes.removeAt(position)
-    }
+    @Query("SELECT * FROM table_transacoes")
+    fun todas() : LiveData<List<Transacao>>
 
-    fun altera(transacao: Transacao, position: Int){
-        Companion.transacoes[position] = transacao
-    }
+    @Query("SELECT * FROM table_transacoes WHERE transacaoId = :id")
+    suspend fun busca(id: Long) : Transacao?
+
+
 }

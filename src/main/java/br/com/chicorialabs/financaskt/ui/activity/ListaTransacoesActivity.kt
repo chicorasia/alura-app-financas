@@ -5,7 +5,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.lifecycleScope
 import br.com.chicorialabs.financaskt.dao.TransacaoDao
+import br.com.chicorialabs.financaskt.dao.TransacaoDatabase
 import br.com.chicorialabs.financaskt.databinding.ActivityListaTransacoesBinding
 import br.com.chicorialabs.financaskt.model.Tipo
 import br.com.chicorialabs.financaskt.model.Transacao
@@ -14,6 +17,7 @@ import br.com.chicorialabs.financaskt.ui.adapter.ListaTransacoesAdapter
 import br.com.chicorialabs.financaskt.ui.dialog.AdicionaTransacaoDialog
 import br.com.chicorialabs.financaskt.ui.dialog.AlteraTransacaoDialog
 import com.github.clans.fab.FloatingActionMenu
+import kotlinx.coroutines.launch
 
 class ListaTransacoesActivity : AppCompatActivity() {
 
@@ -21,18 +25,25 @@ class ListaTransacoesActivity : AppCompatActivity() {
         ActivityListaTransacoesBinding.inflate(layoutInflater)
     }
 
-    private val dao = TransacaoDao()
-    private val transacoes = dao.transacoes
+    private lateinit var dao: TransacaoDao
+    private lateinit var transacoes: LiveData<List<Transacao>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val view = mBinding.root
         val floatingActionMenu = mBinding.listaTransacoesAdicionaMenu
 
+        val application = requireNotNull(this).application
+        dao = TransacaoDatabase.getInstance(application).transacaoDao
+
+        lifecycleScope.launch {
+            transacoes = dao.todas()
+            configuraResumo()
+            configuraLista()
+        }
+
 
         setContentView(view)
-        configuraResumo()
-        configuraLista()
         configuraFab(floatingActionMenu)
 
     }
@@ -57,7 +68,9 @@ class ListaTransacoesActivity : AppCompatActivity() {
 
 
     private fun adiciona(transacao: Transacao) {
-        dao.adiciona(transacao)
+        lifecycleScope.launch {
+            dao.adiciona(transacao)
+        }
         atualizaTransacoes()
     }
 
@@ -68,23 +81,29 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
     private fun configuraResumo() {
-        val resumoView = ResumoView(mBinding, transacoes, this)
+        transacoes.observe(this) {
+            val resumoView = ResumoView(mBinding, it, this@ListaTransacoesActivity)
+            resumoView.atualiza()
+        }
 
-        resumoView.atualiza()
+
+
     }
 
 
     private fun configuraLista() {
 
-        val listaTransacoesAdapter = ListaTransacoesAdapter(context = this, transacoes = transacoes)
-        with(mBinding.listaTransacoesListview) {
-            adapter = listaTransacoesAdapter
-            setOnItemClickListener { _, _, position, _ ->
-                val transacaoClicada = transacoes[position]
-                chamaDialogAlteraTransacao(transacaoClicada, position)
-            }
-            setOnCreateContextMenuListener { menu, _, _ ->
-                menu.add(Menu.NONE, 1, Menu.NONE, "Remover")
+        transacoes.observe(this) {
+            val listaTransacoesAdapter = ListaTransacoesAdapter(context = this, transacoes = it)
+            with(mBinding.listaTransacoesListview) {
+                adapter = listaTransacoesAdapter
+                setOnItemClickListener { _, _, position, _ ->
+                    val transacaoClicada = it[position]
+                    chamaDialogAlteraTransacao(transacaoClicada)
+                }
+                setOnCreateContextMenuListener { menu, _, _ ->
+                    menu.add(Menu.NONE, 1, Menu.NONE, "Remover")
+                }
             }
         }
     }
@@ -101,26 +120,35 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
     private fun remove(posicao: Int) {
-        dao.remove(posicao)
-        atualizaTransacoes()
+        transacoes?.let { it ->
+            val id = it.value?.get(posicao)?.transacaoId
+            lifecycleScope.launch {
+                id?.let { id ->
+                    dao.remove(id)
+                }
+            }
+            atualizaTransacoes()
+        }
+
     }
 
     private fun chamaDialogAlteraTransacao(
         transacaoClicada: Transacao,
-        position: Int
     ) {
         AlteraTransacaoDialog(this).chama(transacaoClicada) { transacaoAlterada ->
-            altera(transacaoAlterada, position)
+            altera(transacaoAlterada)
         }
     }
 
     private fun altera(
         transacao: Transacao,
-        position: Int
     ) {
-        dao.altera(transacao, position)
+        lifecycleScope.launch {
+            dao.altera(transacao)
+        }
         atualizaTransacoes()
     }
+
 
 }
 

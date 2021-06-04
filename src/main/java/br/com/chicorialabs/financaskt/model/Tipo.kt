@@ -16,3 +16,17 @@ enum class Tipo(val cor: Int, val icone: Int, val titulo: Int, val categorias: I
         R.array.categorias_de_despesa
     )
 }
+//
+//class Converters {
+//
+//    @TypeConverter
+//    fun toTipo(value: String) : Tipo {
+//        return when(value) {
+//            "RECEITA" -> Tipo.RECEITA
+//            else -> Tipo.DESPESA
+//        }
+//    }
+//
+//    @TypeConverter
+//    fun fromTipo(value: Tipo) = value.name
+//}
