@@ -25,17 +25,18 @@ abstract class FormularioTransacaoDialog(private val context: Context) {
     protected abstract val tituloBotaoPositivo: String
 
     open fun chama(
+        id: Long = 0L,
         tipo: Tipo,
         delegate: (transacao: Transacao) -> Unit
     ) {
 
         configuraCampoData()
         configuraCampoCategoria(tipo)
-        configuraFormulario(tipo, delegate)
+        configuraFormulario(id, tipo, delegate)
     }
 
 
-    private fun configuraFormulario(tipo: Tipo, delegate: (transacao: Transacao) -> Unit) {
+    private fun configuraFormulario(id: Long, tipo: Tipo, delegate: (transacao: Transacao) -> Unit) {
         AlertDialog.Builder(context)
             .setTitle(tituloPor(tipo))
             .setView(dialogBinding.root)
@@ -51,6 +52,7 @@ abstract class FormularioTransacaoDialog(private val context: Context) {
                 data.time = dataEmTexto.converteParaCalendar()
 
                 val transacaoCriada = Transacao(
+                    transacaoId = id,
                     tipo = tipo,
                     valor = valor,
                     categoria = categoria,

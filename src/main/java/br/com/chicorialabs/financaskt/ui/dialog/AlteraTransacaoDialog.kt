@@ -24,7 +24,7 @@ class AlteraTransacaoDialog(val context: Context) : FormularioTransacaoDialog(co
     ) {
         val tipo = transacao.tipo
 
-        super.chama(tipo, delegate)
+        super.chama(transacao.transacaoId, tipo, delegate)
 
         inicializaCampos(transacao, tipo)
     }

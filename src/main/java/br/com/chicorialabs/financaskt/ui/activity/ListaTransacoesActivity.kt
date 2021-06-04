@@ -59,7 +59,7 @@ class ListaTransacoesActivity : AppCompatActivity() {
     }
 
     private fun chamaDialogAdicionaTransacao(floatingActionMenu: FloatingActionMenu, tipo: Tipo) {
-        AdicionaTransacaoDialog(this).chama(tipo)
+        AdicionaTransacaoDialog(this).chama(tipo = tipo)
         { transacaoCriada ->
             adiciona(transacaoCriada)
             floatingActionMenu.close(true)
@@ -85,9 +85,6 @@ class ListaTransacoesActivity : AppCompatActivity() {
             val resumoView = ResumoView(mBinding, it, this@ListaTransacoesActivity)
             resumoView.atualiza()
         }
-
-
-
     }
 
 
@@ -135,8 +132,8 @@ class ListaTransacoesActivity : AppCompatActivity() {
     private fun chamaDialogAlteraTransacao(
         transacaoClicada: Transacao,
     ) {
-        AlteraTransacaoDialog(this).chama(transacaoClicada) { transacaoAlterada ->
-            altera(transacaoAlterada)
+        AlteraTransacaoDialog(this).chama(transacaoClicada) {
+            altera(it)
         }
     }
 
